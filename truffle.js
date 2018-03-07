@@ -1,18 +1,23 @@
 module.exports = {
-  // See <http://truffleframework.com/docs/advanced/configuration>
-  // for more about customizing your Truffle configuration!
   networks: {
     development: {
-      host: "127.0.0.1",
-      port: 8545,
-      network_id: "*" // Match any network id
-    },
-    ropsten:  {
       host: "localhost",
-      network_id: 3,
-      port:  8545,
-      gas: 670000,
-    }
+      port: 8545,
+      network_id: "*", // Match any network id
+      gas: 1000000
+    },
+    ropsten: {
+      host: "localhost",
+      port: 8545,
+      network_id: "3",
+      gas: 1000000
+    },
+    production: {
+      host: "localhost",
+      port: 8545,
+      network_id: "1", // LIVE
+      gas: 1000000
+    },
   },
   solc: { optimizer: { enabled: true, runs: 200 } }
 };
