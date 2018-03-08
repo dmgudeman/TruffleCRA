@@ -62,32 +62,32 @@ class App extends Component {
 
     // Declaring this for later so we can chain functions on FixedSupplyToken.
     // Get accounts.const {fixedSupplyTokenInstance} = this.state;
-    this.state.web3.eth.getAccounts((error, accounts) => {
-        this.setState(web3 => ({
-          ...web3,
-          defaultAccount:this.state.web3.eth.accounts[0]
-        }))
-      fixedSupplyToken.deployed().then((instance) => {
-        this.setState({fixedSupplyTokenInstance: instance});
-        // this.state.fixedSupplyTokenInstance.transfer("0x57529B1F235aC9356e478E66BCb2a4594D16DD10", 1);
-        this.state.fixedSupplyTokenInstance.totalSupply().then( (result) => { 
-          let k = new BigNumber(result).valueOf();
-          console.log("k = new BigNumber(result).valueOf() ", k);
-          return k }).then(
-        this.state.fixedSupplyTokenInstance.balanceOf(accounts[0]).then((result) => {
-          let myTokens = new BigNumber(result).valueOf();
-          console.log("myTokens", myTokens);
-        }));
-        // Stores a given value, 5 by default.
-        return this.state.fixedSupplyTokenInstance.set(5, {from: accounts[0]})
-      }).then((result) => {
-        // Get the value from the contract to prove it worked.
-        return this.state.fixedSupplyTokenInstance.get.call(accounts[0])
-      }).then((result) => {
-        // Update state with the result.
-        return this.setState({ storageValue: result.c[0] })
-      })
-    })
+    // this.state.web3.eth.getAccounts((error, accounts) => {
+    //     this.setState(web3 => ({
+    //       ...web3,
+    //       defaultAccount:this.state.web3.eth.accounts[0]
+    //     }))
+    //   fixedSupplyToken.deployed().then((instance) => {
+    //     this.setState({fixedSupplyTokenInstance: instance});
+    //     // this.state.fixedSupplyTokenInstance.transfer("0x57529B1F235aC9356e478E66BCb2a4594D16DD10", 1);
+    //     this.state.fixedSupplyTokenInstance.totalSupply().then( (result) => { 
+    //       let k = new BigNumber(result).valueOf();
+    //       console.log("k = new BigNumber(result).valueOf() ", k);
+    //       return k }).then(
+    //     this.state.fixedSupplyTokenInstance.balanceOf(accounts[0]).then((result) => {
+    //       let myTokens = new BigNumber(result).valueOf();
+    //       console.log("myTokens", myTokens);
+    //     }));
+    //     // Stores a given value, 5 by default.
+    //     return this.state.fixedSupplyTokenInstance.set(5, {from: accounts[0]})
+    //   }).then((result) => {
+    //     // Get the value from the contract to prove it worked.
+    //     return this.state.fixedSupplyTokenInstance.get.call(accounts[0])
+    //   }).then((result) => {
+    //     // Update state with the result.
+    //     return this.setState({ storageValue: result.c[0] })
+    //   })
+    // })
   }
 
   handleChange(event) {
