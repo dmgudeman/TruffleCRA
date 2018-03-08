@@ -91,11 +91,13 @@ class App extends Component {
   }
 
   handleChange(event) {
+    event.preventDefault()
     console.log("event", event.target.value)
     this.setState({transferAmount: event.target.value})
   }
 
   handleChangeAddr(event) {
+    event.preventDefault();
     console.log("event", event.target.value)
     this.setState({transferToAddress: event.target.value})
   }
