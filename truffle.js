@@ -1,7 +1,7 @@
 var HDWalletProvider = require("truffle-hdwallet-provider");
 
 var mnemonic = "emerge call strategy naive remove grunt example sport burden ceiling tide loud";
-var provider = new HDWalletProvider(mnemonic, "https://ropsten.infura.io/WCDTmDbf8qzgqQS9qYdT", 5);
+var provider = new HDWalletProvider(mnemonic, "https://ropsten.infura.io/WCDTmDbf8qzgqQS9qYdT");
 module.exports = {
   networks: {
     development: {
