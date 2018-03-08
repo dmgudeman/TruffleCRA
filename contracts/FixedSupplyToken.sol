@@ -221,23 +221,5 @@ contract FixedSupplyToken is ERC20Interface, Owned {
     }
 
 
-    // ------------------------------------------------------------------------
-    // Owner can transfer out any accidentally sent ERC20 tokens
-    // ------------------------------------------------------------------------
-    function transferAnyERC20Token(address tokenAddress, uint tokens) public onlyOwner returns (bool success) {
-        return ERC20Interface(tokenAddress).transfer(owner, tokens);
-    }
-    // From SimpleStorage
-
-    function set(uint x) public {
-        storedData = x;
-    }
-
-    function get() public view returns (uint) {
-        return storedData;
-    }
-
-    function getTokenBalance() public view returns (uint) {
-        return storedToken;
-    }
+   
 }

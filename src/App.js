@@ -132,13 +132,7 @@ class App extends Component {
         </nav>
 
         <main className="container">
-          <div className="pure-g">
-            <div className="pure-u-1-1">
-              <p>If your contracts compiled and migrated successfully, below will show a stored value of 5 (by default).</p>
-              <p>(give it some time)</p>
-              <p>The stored value is: {this.state.storageValue}</p>
-            </div>
-          </div>
+         
           <hr/>
           <form onSubmit={this.onSubmit}>
             <h4>Transfer Token</h4>
