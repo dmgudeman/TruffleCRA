@@ -16,6 +16,7 @@ let getWeb3 = new Promise(function(resolve, reject) {
       }
 
       console.log('Injected web3 detected.');
+      console.log(web3.eth.accounts);
 
       resolve(results)
     } else {
