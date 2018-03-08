@@ -105,23 +105,23 @@ class App extends Component {
   onSubmit(event){
     event.preventDefault();
     this.state.web3.eth.getAccounts((error, accounts) => {
-      console.log("this.state.transferToAddress", this.state.transferToAddress)
-      console.log("this.state.transferAmount", this.state.transferAmount)
+      // console.log("this.state.transferToAddress", this.state.transferToAddress)
+      // console.log("this.state.transferAmount", this.state.transferAmount)
       this.state.fixedSupplyTokenInstance.transfer(this.state.transferToAddress, this.state.transferAmount);
-      this.state.fixedSupplyTokenInstance.balanceOf(accounts[0]).then((result) => {
-        let myTokens = new BigNumber(result).valueOf();
-        console.log("myTokens", myTokens);
-      });
+      // this.state.fixedSupplyTokenInstance.balanceOf(accounts[0]).then((result) => {
+      //   let myTokens = new BigNumber(result).valueOf();
+      //   console.log("myTokens", myTokens);
+      // });
 
-      this.state.fixedSupplyTokenInstance.balanceOf(this.state.transferToAddress).then((result) => {
-        let account2 = new BigNumber(result).valueOf();
-        console.log("account2", account2);
-        this.setState({newBalance: account2});
-      });
-      let k = this.state.fixedSupplyTokenInstance.totalSupply.call().then(function(value) {
-        return new BigNumber(value).valueOf();
-    })
-      console.log("totalSupply", k);
+    //   this.state.fixedSupplyTokenInstance.balanceOf(this.state.transferToAddress).then((result) => {
+    //     let account2 = new BigNumber(result).valueOf();
+    //     console.log("account2", account2);
+    //     this.setState({newBalance: account2});
+    //   });
+    //   let k = this.state.fixedSupplyTokenInstance.totalSupply.call().then(function(value) {
+    //     return new BigNumber(value).valueOf();
+    // })
+    //   console.log("totalSupply", k);
 
   })}
 
