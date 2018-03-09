@@ -106,11 +106,7 @@ contract FixedSupplyToken is ERC20Interface, Owned {
     uint8 public decimals;
     uint public _totalSupply;
 
-    // from SimpleStorage
-    uint storedData;
-    uint storedToken;
-    address public manager;
-    uint public minimumContribution;
+   
 
     mapping(address => uint) balances;
     mapping(address => mapping(address => uint)) allowed;
