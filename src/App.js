@@ -21,7 +21,8 @@ class App extends Component {
       fixedSupplyTokenInstance: '',
       defaultAccount: '',
       transferToAddress: '',
-      newBalance: ''
+      newBalance: '',
+      ownerAddress: ''
     }
     this.handleChange = this.handleChange.bind(this);
     this.handleChangeAddr = this.handleChangeAddr.bind(this);
@@ -69,7 +70,6 @@ class App extends Component {
         }))
       fixedSupplyToken.deployed().then((instance) => {
         this.setState({fixedSupplyTokenInstance: instance});
-        console.log("msg.sender", this.state.web3.msg.sender)
         // this.state.fixedSupplyTokenInstance.transfer("0x57529B1F235aC9356e478E66BCb2a4594D16DD10", 1);
         // this.state.fixedSupplyTokenInstance.totalSupply().then( (result) => { 
         //   let k = new BigNumber(result).valueOf();
@@ -105,10 +105,29 @@ class App extends Component {
   }
   onSubmit(event){
     event.preventDefault();
+    event.persist();
+    const target = event.target;
+
     this.state.web3.eth.getAccounts((error, accounts) => {
       // console.log("this.state.transferToAddress", this.state.transferToAddress)
       // console.log("this.state.transferAmount", this.state.transferAmount)
-      this.state.fixedSupplyTokenInstance.transfer(this.state.transferToAddress, this.state.transferAmount);
+      this.state.fixedSupplyTokenInstance.transfer(this.state.transferToAddress, this.state.transferAmount)
+      .then((result) => {
+        let x = this.state.fixedSupplyTokenInstance.owner().then((result) =>{console.log("reult", result);});
+        this.setState({transferToAddress: target.toAddress.value});
+        console.log("target.toAddress.value", target.toAddress.value);
+        this.state.fixedSupplyTokenInstance.balanceOf(this.state.transferToAddress).then((result)=>{
+          let y = new BigNumber(result).valueOf();
+          console.log("RESULT", result);
+          console.log("y", y);
+          this.setState({newBalance:y});
+        })
+        // this.setState({newBalance: y});
+        // console.log("newBalance", this.state.newBalance)
+        // let y = this.state.fixedSupplyTokenInstance.balanceOf(this.state.ownerAddress);
+        // this.setState({newBalance: y})
+        // console.log("this.state.newBalance", this.state.newBalance)
+      })
       // this.state.fixedSupplyTokenInstance.balanceOf(accounts[0]).then((result) => {
       //   let myTokens = new BigNumber(result).valueOf();
       //   console.log("myTokens", myTokens);
@@ -139,17 +158,24 @@ class App extends Component {
           <form onSubmit={this.onSubmit}>
             <h4>Transfer Token</h4>
             <label>Address to transfer to (as a hexadecimal)</label><br/>
-            <input  type="text" value={this.state.transferToAddress} onChange={this.handleChangeAddr}/><br/>
+            <input  
+              name="toAddress" 
+              type="text" 
+              value={this.state.transferToAddress} 
+              onChange={this.handleChangeAddr}
+            />
+            <br/>
             <hr/>
             <label>
               How many tokens to transfer
             </label><br />
-            <input type="text" value={this.state.transferAmount} onChange={this.handleChange}/><br/>
+            <input name="amount" type="text" value={this.state.transferAmount} onChange={this.handleChange}/><br/>
             <hr/>
             <button>Transfer Tokens</button><br/>
           </form>
           <div>
             <hr/>
+            <h4>Address to Receive Tokens: {this.state.transferToAddress}</h4>
             <h4>New Balance: {this.state.newBalance}</h4>
           </div>
         </main>
