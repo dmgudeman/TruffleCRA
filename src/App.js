@@ -69,6 +69,7 @@ class App extends Component {
         }))
       fixedSupplyToken.deployed().then((instance) => {
         this.setState({fixedSupplyTokenInstance: instance});
+        console.log("msg.sender", this.state.web3.msg.sender)
         // this.state.fixedSupplyTokenInstance.transfer("0x57529B1F235aC9356e478E66BCb2a4594D16DD10", 1);
         // this.state.fixedSupplyTokenInstance.totalSupply().then( (result) => { 
         //   let k = new BigNumber(result).valueOf();

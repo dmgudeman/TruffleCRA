@@ -13,7 +13,14 @@ module.exports = {
     ropsten: {
       provider,
       network_id: "3",
-      gas: 1000000
+      gasPrice: 0,
+      gas: 6500000
+    },
+    myRopsten: {
+      host: "localhost",
+      port: 8545,
+      network_id: "3",
+      gas: 4700000
     },
     production: {
       host: "localhost",
