@@ -1,5 +1,5 @@
 var FixedSupplyToken = artifacts.require("./FixedSupplyToken.sol");
 
 module.exports = function(deployer) {
-  deployer.deploy(FixedSupplyToken, {gas: 4700000});
+  deployer.deploy(FixedSupplyToken, {gas: 1000000});
 };
