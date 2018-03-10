@@ -72,25 +72,29 @@ class App extends Component {
       fixedSupplyToken.deployed().then((instance) => {
         this.setState({fixedSupplyTokenInstance: instance});
 
+        this.state.fixedSupplyTokenInstance.balanceOf(accounts[0]).then((result) => {
+          return new BigNumber(result).valueOf();
+         
+        }).then((result)=>{
+          this.setState({ownerBalance: result})
+        });
+
+        this.state.fixedSupplyTokenInstance.owner().then((result)=>{
+          this.setState({ownerAddress: result});
+          console.log("reult", result);});
+          
+
+        return instance;
         // this.state.fixedSupplyTokenInstance.transfer("0x57529B1F235aC9356e478E66BCb2a4594D16DD10", 1);
         // this.state.fixedSupplyTokenInstance.totalSupply().then( (result) => { 
         //   let k = new BigNumber(result).valueOf();
         //   console.log("k = new BigNumber(result).valueOf() ", k);
         //   return k }).then(
-        // this.state.fixedSupplyTokenInstance.balanceOf(accounts[0]).then((result) => {
-        //   let myTokens = new BigNumber(result).valueOf();
-        //   console.log("myTokens", myTokens);
-        // }));
+        
         // // Stores a given value, 5 by default.
         // return this.state.fixedSupplyTokenInstance.set(5, {from: accounts[0]})
       })
-      // .then((result) => {
-      //   // Get the value from the contract to prove it worked.
-      //   return this.state.fixedSupplyTokenInstance.get.call(accounts[0])
-      // }).then((result) => {
-      //   // Update state with the result.
-      //   return this.setState({ storageValue: result.c[0] })
-      // })
+     
     })
   }
 
@@ -125,7 +129,15 @@ class App extends Component {
           console.log("RESULT", result);
           console.log("y", y);
           this.setState({newBalance:y});
+        });
+        this.state.fixedSupplyTokenInstance.balanceOf(this.state.ownerAddress).then((result)=>{
+          console.log("this.state.ownerAddress", this.state.ownerAddress)
+          let z = new BigNumber(result).valueOf();
+          console.log("RESULT owner", result);
+          console.log("y", z);
+          this.setState({ownerBalance:z});
         })
+
         // this.setState({newBalance: y});
         // console.log("newBalance", this.state.newBalance)
         // let y = this.state.fixedSupplyTokenInstance.balanceOf(this.state.ownerAddress);
@@ -158,10 +170,10 @@ class App extends Component {
 
         <main className="container">
          
+          <h4>Your address is: {this.state.ownerAddress}</h4>
+          <h4>Tokens you own: {this.state.ownerBalance}</h4>
           <hr/>
           <form onSubmit={this.onSubmit}>
-            <h4>Your address is: {this.state.ownerAddress}</h4>
-            <h4>Tokens you own: {this.state.ownerBalance}</h4>
             <h4>Transfer Token</h4>
             <label>Address to transfer to (as a hexadecimal)</label><br/>
             <input  
