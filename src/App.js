@@ -15,13 +15,13 @@ class App extends Component {
     super(props)
 
     this.state = {
-      storageValue: 0,
       web3: null,
-      transferAmount: '',
+      fieldTransferAmount: '',
+      fieldTransferToAddress: '',
       fixedSupplyTokenInstance: '',
       defaultAccount: '',
       transferToAddress: '',
-      newBalance: '',
+      transferToBalance: '',
       ownerAddress: '',
       ownerBalance: ''
     }
@@ -101,13 +101,13 @@ class App extends Component {
   handleChange(event) {
     event.preventDefault()
     console.log("event", event.target.value)
-    this.setState({transferAmount: event.target.value})
+    this.setState({fieldTransferAmount: event.target.value})
   }
 
   handleChangeAddr(event) {
     event.preventDefault();
     console.log("event", event.target.value)
-    this.setState({transferToAddress: event.target.value})
+    this.setState({fieldTransferToAddress: event.target.value})
   }
   onSubmit(event){
     event.preventDefault();
@@ -115,9 +115,11 @@ class App extends Component {
     const target = event.target;
 
     this.state.web3.eth.getAccounts((error, accounts) => {
-      // console.log("this.state.transferToAddress", this.state.transferToAddress)
-      // console.log("this.state.transferAmount", this.state.transferAmount)
-      this.state.fixedSupplyTokenInstance.transfer(this.state.transferToAddress, this.state.transferAmount)
+      console.log("this.state.transferToAddress", this.state.transferToAddress)
+      console.log("this.state.transferAmount", this.state.transferAmount)
+      console.log("this.state.fieldTransferToAddress", this.state.fieldTransferToAddress)
+      console.log("this.state.fieldTransferAmount", this.state.fieldTransferAmount)
+      this.state.fixedSupplyTokenInstance.transfer(this.state.fieldTransferToAddress, this.state.fieldTransferAmount)
       .then((result) => {
         let x = this.state.fixedSupplyTokenInstance.owner().then((result) =>{
          this.setState({ownerAddress: result});
@@ -128,7 +130,9 @@ class App extends Component {
           let y = new BigNumber(result).valueOf();
           console.log("RESULT", result);
           console.log("y", y);
-          this.setState({newBalance:y});
+          this.setState({transferToBalance:y});
+          this.setState({fieldTransferAmount: ''});
+          this.setState({fieldTransferToAddress: ''});
         });
         this.state.fixedSupplyTokenInstance.balanceOf(this.state.ownerAddress).then((result)=>{
           console.log("this.state.ownerAddress", this.state.ownerAddress)
@@ -138,11 +142,11 @@ class App extends Component {
           this.setState({ownerBalance:z});
         })
 
-        // this.setState({newBalance: y});
-        // console.log("newBalance", this.state.newBalance)
+        // this.setState({transferToBalance: y});
+        // console.log("transferToBalance", this.state.transferToBalance)
         // let y = this.state.fixedSupplyTokenInstance.balanceOf(this.state.ownerAddress);
-        // this.setState({newBalance: y})
-        // console.log("this.state.newBalance", this.state.newBalance)
+        // this.setState({transferToBalance: y})
+        // console.log("this.state.transferToBalance", this.state.transferToBalance)
       })
       // this.state.fixedSupplyTokenInstance.balanceOf(accounts[0]).then((result) => {
       //   let myTokens = new BigNumber(result).valueOf();
@@ -152,7 +156,7 @@ class App extends Component {
     //   this.state.fixedSupplyTokenInstance.balanceOf(this.state.transferToAddress).then((result) => {
     //     let account2 = new BigNumber(result).valueOf();
     //     console.log("account2", account2);
-    //     this.setState({newBalance: account2});
+    //     this.setState({transferToBalance: account2});
     //   });
     //   let k = this.state.fixedSupplyTokenInstance.totalSupply.call().then(function(value) {
     //     return new BigNumber(value).valueOf();
@@ -179,7 +183,7 @@ class App extends Component {
             <input  
               name="toAddress" 
               type="text" 
-              value={this.state.transferToAddress} 
+              value={this.state.fieldTransferToAddress} 
               onChange={this.handleChangeAddr}
             />
             <br/>
@@ -187,14 +191,14 @@ class App extends Component {
             <label>
               How many tokens to transfer
             </label><br />
-            <input name="amount" type="text" value={this.state.transferAmount} onChange={this.handleChange}/><br/>
+            <input name="amount" type="text" value={this.state.fieldTransferAmount} onChange={this.handleChange}/><br/>
             <hr/>
             <button>Transfer Tokens</button><br/>
           </form>
           <div>
             <hr/>
             <h4>Address to Receive Tokens: {this.state.transferToAddress}</h4>
-            <h4>New Balance: {this.state.newBalance}</h4>
+            <h4>New Balance: {this.state.transferToBalance}</h4>
           </div>
         </main>
       </div>
