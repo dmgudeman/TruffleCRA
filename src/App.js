@@ -22,7 +22,8 @@ class App extends Component {
       defaultAccount: '',
       transferToAddress: '',
       newBalance: '',
-      ownerAddress: ''
+      ownerAddress: '',
+      ownerBalance: ''
     }
     this.handleChange = this.handleChange.bind(this);
     this.handleChangeAddr = this.handleChangeAddr.bind(this);
@@ -70,6 +71,7 @@ class App extends Component {
         }))
       fixedSupplyToken.deployed().then((instance) => {
         this.setState({fixedSupplyTokenInstance: instance});
+
         // this.state.fixedSupplyTokenInstance.transfer("0x57529B1F235aC9356e478E66BCb2a4594D16DD10", 1);
         // this.state.fixedSupplyTokenInstance.totalSupply().then( (result) => { 
         //   let k = new BigNumber(result).valueOf();
@@ -113,7 +115,9 @@ class App extends Component {
       // console.log("this.state.transferAmount", this.state.transferAmount)
       this.state.fixedSupplyTokenInstance.transfer(this.state.transferToAddress, this.state.transferAmount)
       .then((result) => {
-        let x = this.state.fixedSupplyTokenInstance.owner().then((result) =>{console.log("reult", result);});
+        let x = this.state.fixedSupplyTokenInstance.owner().then((result) =>{
+         this.setState({ownerAddress: result});
+          console.log("reult", result);});
         this.setState({transferToAddress: target.toAddress.value});
         console.log("target.toAddress.value", target.toAddress.value);
         this.state.fixedSupplyTokenInstance.balanceOf(this.state.transferToAddress).then((result)=>{
@@ -156,6 +160,8 @@ class App extends Component {
          
           <hr/>
           <form onSubmit={this.onSubmit}>
+            <h4>Your address is: {this.state.ownerAddress}</h4>
+            <h4>Tokens you own: {this.state.ownerBalance}</h4>
             <h4>Transfer Token</h4>
             <label>Address to transfer to (as a hexadecimal)</label><br/>
             <input  
