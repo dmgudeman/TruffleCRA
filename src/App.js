@@ -23,7 +23,8 @@ class App extends Component {
       transferToAddress: '',
       transferToBalance: '',
       ownerAddress: '',
-      ownerBalance: ''
+      ownerBalance: '',
+      formMessage: ''
     }
     this.handleChange = this.handleChange.bind(this);
     this.handleChangeAddr = this.handleChangeAddr.bind(this);
@@ -119,8 +120,10 @@ class App extends Component {
       console.log("this.state.transferAmount", this.state.transferAmount)
       console.log("this.state.fieldTransferToAddress", this.state.fieldTransferToAddress)
       console.log("this.state.fieldTransferAmount", this.state.fieldTransferAmount)
+       this.setState({formMessage: "Transaction Pending"})
       this.state.fixedSupplyTokenInstance.transfer(this.state.fieldTransferToAddress, this.state.fieldTransferAmount)
       .then((result) => {
+        // this.setState({formMessage: "Transaction Pending"});
         let x = this.state.fixedSupplyTokenInstance.owner().then((result) =>{
          this.setState({ownerAddress: result});
           console.log("reult", result);});
@@ -140,6 +143,9 @@ class App extends Component {
           console.log("RESULT owner", result);
           console.log("y", z);
           this.setState({ownerBalance:z});
+          
+        }).then(()=>{
+          this.setState({formMessage: ''});
         })
 
         // this.setState({transferToBalance: y});
@@ -201,6 +207,7 @@ class App extends Component {
             <h4>New Balance: {this.state.transferToBalance}</h4>
           </div>
         </main>
+        <h1>{this.state.formMessage}</h1>
       </div>
     );
   }
