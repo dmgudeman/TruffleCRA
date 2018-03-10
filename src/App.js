@@ -191,13 +191,21 @@ class App extends Component {
               type="text" 
               value={this.state.fieldTransferToAddress} 
               onChange={this.handleChangeAddr}
+              style={{width: 400}}
             />
             <br/>
             <hr/>
             <label>
               How many tokens to transfer
             </label><br />
-            <input name="amount" type="text" value={this.state.fieldTransferAmount} onChange={this.handleChange}/><br/>
+            <input 
+              name="amount" 
+              type="text" 
+              value={this.state.fieldTransferAmount} 
+              onChange={this.handleChange}
+              style={{width: 50}}
+            />
+            <br/>
             <hr/>
             <button>Transfer Tokens</button><br/>
           </form>
