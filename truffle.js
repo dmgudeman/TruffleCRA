@@ -14,7 +14,7 @@ module.exports = {
       provider,
       network_id: "3",
       gasPrice: 0,
-      gas: 6500000
+      gas: 7500000
     },
     myRopsten: {
       host: "localhost",

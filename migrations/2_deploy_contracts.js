@@ -1,5 +1,5 @@
-var FixedSupplyToken = artifacts.require("./FixedSupplyToken.sol");
+var FreeExchange = artifacts.require("./FreeExchange.sol");
 
 module.exports = function(deployer) {
-deployer.deploy(FixedSupplyToken, {gas: 4700000});
+deployer.deploy(FreeExchange, {gas: 4700000});
 };
