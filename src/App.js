@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {BigNumber} from 'bignumber.js';
-import FixedSupplyTokenContract from '../build/contracts/FixedSupplyToken.json';
+import FreeExchangeContract from '../build/contracts/FreeExchange.json';
 import getWeb3 from './utils/getWeb3';
 
 import './css/oswald.css'
@@ -17,7 +17,7 @@ class App extends Component {
       web3: null,
       fieldTransferAmount: '',
       fieldTransferToAddress: '',
-      fixedSupplyTokenInstance: '',
+      freeExchangeInstance: '',
       defaultAccount: '',
       transferToAddress: '',
       transferToBalance: '',
@@ -57,27 +57,27 @@ class App extends Component {
      * state management library, but for convenience I've placed them here.
      */
     const contract = require('truffle-contract')
-    const fixedSupplyToken = contract(FixedSupplyTokenContract)
-    fixedSupplyToken.setProvider(this.state.web3.currentProvider)
-    fixedSupplyToken.defaults({from: this.state.web3.eth.coinbase})
+    const freeExchange = contract(FreeExchangeContract)
+    freeExchange.setProvider(this.state.web3.currentProvider)
+    freeExchange.defaults({from: this.state.web3.eth.coinbase})
 
-    // Declaring this for later so we can chain functions on FixedSupplyToken.
-    // Get accounts.const {fixedSupplyTokenInstance} = this.state;
+    // Declaring this for later so we can chain functions on FreeExchange.
+    // Get accounts.const {freeExchangeInstance} = this.state;
     this.state.web3.eth.getAccounts((error, accounts) => {
         this.setState(web3 => ({
           ...web3,
           defaultAccount:this.state.web3.eth.accounts[0]
         }))
-      fixedSupplyToken.deployed().then((instance) => {
-        this.setState({fixedSupplyTokenInstance: instance});
+      freeExchange.deployed().then((instance) => {
+        this.setState({freeExchangeInstance: instance});
 
-        this.state.fixedSupplyTokenInstance.balanceOf(accounts[0]).then((result) => {
+        this.state.freeExchangeInstance.balanceOf(accounts[0]).then((result) => {
           return new BigNumber(result).valueOf();
         }).then((result)=>{
           this.setState({ownerBalance: result})
         });
 
-        this.state.fixedSupplyTokenInstance.owner().then((result)=>{
+        this.state.freeExchangeInstance.owner().then((result)=>{
           this.setState({ownerAddress: result});
         });
           
@@ -97,6 +97,12 @@ class App extends Component {
     console.log("event", event.target.value)
     this.setState({fieldTransferToAddress: event.target.value})
   }
+ 
+  handleGVIncrease(event) {
+    event.preventDefault();
+    this.state.freeExchangeInstance.setGlobalVariable(1);
+
+  }
   onSubmit(event){
     event.preventDefault();
     event.persist();
@@ -104,19 +110,19 @@ class App extends Component {
 
     this.state.web3.eth.getAccounts((error, accounts) => {
        this.setState({formMessage: "Transaction Pending"})
-       this.state.fixedSupplyTokenInstance.transfer(this.state.fieldTransferToAddress, this.state.fieldTransferAmount)
+       this.state.freeExchangeInstance.transfer(this.state.fieldTransferToAddress, this.state.fieldTransferAmount)
       .then((result) => {
-         this.state.fixedSupplyTokenInstance.owner().then((result) =>{
+         this.state.freeExchangeInstance.owner().then((result) =>{
          this.setState({ownerAddress: result});
         });
         this.setState({transferToAddress: target.toAddress.value});
-        this.state.fixedSupplyTokenInstance.balanceOf(this.state.transferToAddress).then((result)=>{
+        this.state.freeExchangeInstance.balanceOf(this.state.transferToAddress).then((result)=>{
           let y = new BigNumber(result).valueOf();
           this.setState({transferToBalance:y});
           this.setState({fieldTransferAmount: ''});
           this.setState({fieldTransferToAddress: ''});
         });
-        this.state.fixedSupplyTokenInstance.balanceOf(this.state.ownerAddress).then((result)=>{
+        this.state.freeExchangeInstance.balanceOf(this.state.ownerAddress).then((result)=>{
           let z = new BigNumber(result).valueOf();
           this.setState({ownerBalance:z});
           
