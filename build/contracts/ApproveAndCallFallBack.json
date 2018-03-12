@@ -32,7 +32,7 @@
   "deployedBytecode": "0x",
   "sourceMap": "",
   "deployedSourceMap": "",
-  "source": "pragma solidity ^0.4.18;\n\n// ----------------------------------------------------------------------------\n// 'FIXED' 'Example Fixed Supply Token' token contract\n//\n// Symbol      : FIXED\n// Name        : Example Fixed Supply Token\n// Total supply: 1,000\n// Decimals    : 0\n//\n// Enjoy.\n//\n// (c) BokkyPooBah / Bok Consulting Pty Ltd 2017. The MIT Licence.\n// ----------------------------------------------------------------------------\n\n\n// ----------------------------------------------------------------------------\n// Safe maths\n// ----------------------------------------------------------------------------\nlibrary SafeMath {\n    function add(uint a, uint b) internal pure returns (uint c) {\n        c = a + b;\n        require(c >= a);\n    }\n    function sub(uint a, uint b) internal pure returns (uint c) {\n        require(b <= a);\n        c = a - b;\n    }\n    function mul(uint a, uint b) internal pure returns (uint c) {\n        c = a * b;\n        require(a == 0 || c / a == b);\n    }\n    function div(uint a, uint b) internal pure returns (uint c) {\n        require(b > 0);\n        c = a / b;\n    }\n}\n\n\n// ----------------------------------------------------------------------------\n// ERC Token Standard #20 Interface\n// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20-token-standard.md\n// ----------------------------------------------------------------------------\ncontract ERC20Interface {\n    function totalSupply() public constant returns (uint);\n    function balanceOf(address tokenOwner) public constant returns (uint balance);\n    function allowance(address tokenOwner, address spender) public constant returns (uint remaining);\n    function transfer(address to, uint tokens) public returns (bool success);\n    function approve(address spender, uint tokens) public returns (bool success);\n    function transferFrom(address from, address to, uint tokens) public returns (bool success);\n\n    event Transfer(address indexed from, address indexed to, uint tokens);\n    event Approval(address indexed tokenOwner, address indexed spender, uint tokens);\n}\n\n\n// ----------------------------------------------------------------------------\n// Contract function to receive approval and execute function in one call\n//\n// Borrowed from MiniMeToken\n// ----------------------------------------------------------------------------\ncontract ApproveAndCallFallBack {\n    function receiveApproval(address from, uint256 tokens, address token, bytes data) public;\n}\n\n\n// ----------------------------------------------------------------------------\n// Owned contract\n// ----------------------------------------------------------------------------\ncontract Owned {\n    address public owner;\n    address public newOwner;\n\n    event OwnershipTransferred(address indexed _from, address indexed _to);\n\n    function Owned() public {\n        owner = msg.sender;\n    }\n\n    modifier onlyOwner {\n        require(msg.sender == owner);\n        _;\n    }\n\n    function transferOwnership(address _newOwner) public onlyOwner {\n        newOwner = _newOwner;\n    }\n    function acceptOwnership() public {\n        require(msg.sender == newOwner);\n        OwnershipTransferred(owner, newOwner);\n        owner = newOwner;\n        newOwner = address(0);\n    }\n}\n\n\n// ----------------------------------------------------------------------------\n// ERC20 Token, with the addition of symbol, name and decimals and an\n// initial fixed supply\n// ----------------------------------------------------------------------------\ncontract FixedSupplyToken is ERC20Interface, Owned {\n    using SafeMath for uint;\n\n    string public symbol;\n    string public  name;\n    uint8 public decimals;\n    uint public _totalSupply;\n\n   \n\n    mapping(address => uint) balances;\n    mapping(address => mapping(address => uint)) allowed;\n\n\n    // ------------------------------------------------------------------------\n    // Constructor\n    // ------------------------------------------------------------------------\n    function FixedSupplyToken() public {\n        symbol = \"FIXED\";\n        name = \"Example Fixed Supply Token\";\n        decimals = 0;\n        _totalSupply = 1000;\n        balances[owner] = _totalSupply;\n        Transfer(address(0), owner, _totalSupply);\n    }\n\n\n    // ------------------------------------------------------------------------\n    // Total supply\n    // ------------------------------------------------------------------------\n    function totalSupply() public constant returns (uint) {\n        return _totalSupply  - balances[address(0)];\n    }\n\n\n    // ------------------------------------------------------------------------\n    // Get the token balance for account `tokenOwner`\n    // ------------------------------------------------------------------------\n    function balanceOf(address tokenOwner) public constant returns (uint balance) {\n        return balances[tokenOwner];\n    }\n\n\n    // ------------------------------------------------------------------------\n    // Transfer the balance from token owner's account to `to` account\n    // - Owner's account must have sufficient balance to transfer\n    // - 0 value transfers are allowed\n    // ------------------------------------------------------------------------\n    function transfer(address to, uint tokens) public returns (bool success) {\n        balances[msg.sender] = balances[msg.sender].sub(tokens);\n        balances[to] = balances[to].add(tokens);\n        Transfer(msg.sender, to, tokens);\n        return true;\n    }\n\n\n    // ------------------------------------------------------------------------\n    // Token owner can approve for `spender` to transferFrom(...) `tokens`\n    // from the token owner's account\n    //\n    // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20-token-standard.md\n    // recommends that there are no checks for the approval double-spend attack\n    // as this should be implemented in user interfaces \n    // ------------------------------------------------------------------------\n    function approve(address spender, uint tokens) public returns (bool success) {\n        allowed[msg.sender][spender] = tokens;\n        Approval(msg.sender, spender, tokens);\n        return true;\n    }\n\n\n    // ------------------------------------------------------------------------\n    // Transfer `tokens` from the `from` account to the `to` account\n    // \n    // The calling account must already have sufficient tokens approve(...)-d\n    // for spending from the `from` account and\n    // - From account must have sufficient balance to transfer\n    // - Spender must have sufficient allowance to transfer\n    // - 0 value transfers are allowed\n    // ------------------------------------------------------------------------\n    function transferFrom(address from, address to, uint tokens) public returns (bool success) {\n        balances[from] = balances[from].sub(tokens);\n        allowed[from][msg.sender] = allowed[from][msg.sender].sub(tokens);\n        balances[to] = balances[to].add(tokens);\n        Transfer(from, to, tokens);\n        return true;\n    }\n\n\n    // ------------------------------------------------------------------------\n    // Returns the amount of tokens approved by the owner that can be\n    // transferred to the spender's account\n    // ------------------------------------------------------------------------\n    function allowance(address tokenOwner, address spender) public constant returns (uint remaining) {\n        return allowed[tokenOwner][spender];\n    }\n\n\n    // ------------------------------------------------------------------------\n    // Token owner can approve for `spender` to transferFrom(...) `tokens`\n    // from the token owner's account. The `spender` contract function\n    // `receiveApproval(...)` is then executed\n    // ------------------------------------------------------------------------\n    function approveAndCall(address spender, uint tokens, bytes data) public returns (bool success) {\n        allowed[msg.sender][spender] = tokens;\n        Approval(msg.sender, spender, tokens);\n        ApproveAndCallFallBack(spender).receiveApproval(msg.sender, tokens, this, data);\n        return true;\n    }\n\n\n    // ------------------------------------------------------------------------\n    // Don't accept ETH\n    // ------------------------------------------------------------------------\n    function () public payable {\n        revert();\n    }\n}\n\n// ----------------------------------------------------------------------------\n// Added functionality\n// ----------------------------------------------------------------------------\ncontract FreeExchange is FixedSupplyToken {\n    using SafeMath for uint;\n\n    uint8 public globalVariable;\n\n    // ------------------------------------------------------------------------\n    // Constructor\n    // ------------------------------------------------------------------------\n    function FreeExchange() public {\n        globalVariable = 0;\n    }\n\n    function setGlobalVariable(uint8 x) public {\n        globalVariable = x;\n    }\n\n    function getGlobalVariable() public view returns (uint8) {\n        return globalVariable;\n    }\n}",
+  "source": "pragma solidity ^0.4.18;\n\n// ----------------------------------------------------------------------------\n// 'FIXED' 'Example Fixed Supply Token' token contract\n//\n// Symbol      : FIXED\n// Name        : Example Fixed Supply Token\n// Total supply: 1,000\n// Decimals    : 0\n//\n// Enjoy.\n//\n// (c) BokkyPooBah / Bok Consulting Pty Ltd 2017. The MIT Licence.\n// ----------------------------------------------------------------------------\n\n\n// ----------------------------------------------------------------------------\n// Safe maths\n// ----------------------------------------------------------------------------\nlibrary SafeMath {\n    function add(uint a, uint b) internal pure returns (uint c) {\n        c = a + b;\n        require(c >= a);\n    }\n    function sub(uint a, uint b) internal pure returns (uint c) {\n        require(b <= a);\n        c = a - b;\n    }\n    function mul(uint a, uint b) internal pure returns (uint c) {\n        c = a * b;\n        require(a == 0 || c / a == b);\n    }\n    function div(uint a, uint b) internal pure returns (uint c) {\n        require(b > 0);\n        c = a / b;\n    }\n}\n\n\n// ----------------------------------------------------------------------------\n// ERC Token Standard #20 Interface\n// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20-token-standard.md\n// ----------------------------------------------------------------------------\ncontract ERC20Interface {\n    function totalSupply() public constant returns (uint);\n    function balanceOf(address tokenOwner) public constant returns (uint balance);\n    function allowance(address tokenOwner, address spender) public constant returns (uint remaining);\n    function transfer(address to, uint tokens) public returns (bool success);\n    function approve(address spender, uint tokens) public returns (bool success);\n    function transferFrom(address from, address to, uint tokens) public returns (bool success);\n\n    event Transfer(address indexed from, address indexed to, uint tokens);\n    event Approval(address indexed tokenOwner, address indexed spender, uint tokens);\n}\n\n\n// ----------------------------------------------------------------------------\n// Contract function to receive approval and execute function in one call\n//\n// Borrowed from MiniMeToken\n// ----------------------------------------------------------------------------\ncontract ApproveAndCallFallBack {\n    function receiveApproval(address from, uint256 tokens, address token, bytes data) public;\n}\n\n\n// ----------------------------------------------------------------------------\n// Owned contract\n// ----------------------------------------------------------------------------\ncontract Owned {\n    address public owner;\n    address public newOwner;\n\n    event OwnershipTransferred(address indexed _from, address indexed _to);\n\n    function Owned() public {\n        owner = msg.sender;\n    }\n\n    modifier onlyOwner {\n        require(msg.sender == owner);\n        _;\n    }\n\n    function transferOwnership(address _newOwner) public onlyOwner {\n        newOwner = _newOwner;\n    }\n    function acceptOwnership() public {\n        require(msg.sender == newOwner);\n        OwnershipTransferred(owner, newOwner);\n        owner = newOwner;\n        newOwner = address(0);\n    }\n}\n\n\n// ----------------------------------------------------------------------------\n// ERC20 Token, with the addition of symbol, name and decimals and an\n// initial fixed supply\n// ----------------------------------------------------------------------------\ncontract FixedSupplyToken is ERC20Interface, Owned {\n    using SafeMath for uint;\n\n    string public symbol;\n    string public  name;\n    uint8 public decimals;\n    uint public _totalSupply;\n\n   \n\n    mapping(address => uint) balances;\n    mapping(address => mapping(address => uint)) allowed;\n\n\n    // ------------------------------------------------------------------------\n    // Constructor\n    // ------------------------------------------------------------------------\n    function FixedSupplyToken() public {\n        symbol = \"FIXED\";\n        name = \"Example Fixed Supply Token\";\n        decimals = 0;\n        _totalSupply = 1000;\n        balances[owner] = _totalSupply;\n        Transfer(address(0), owner, _totalSupply);\n    }\n\n\n    // ------------------------------------------------------------------------\n    // Total supply\n    // ------------------------------------------------------------------------\n    function totalSupply() public constant returns (uint) {\n        return _totalSupply  - balances[address(0)];\n    }\n\n\n    // ------------------------------------------------------------------------\n    // Get the token balance for account `tokenOwner`\n    // ------------------------------------------------------------------------\n    function balanceOf(address tokenOwner) public constant returns (uint balance) {\n        return balances[tokenOwner];\n    }\n\n\n    // ------------------------------------------------------------------------\n    // Transfer the balance from token owner's account to `to` account\n    // - Owner's account must have sufficient balance to transfer\n    // - 0 value transfers are allowed\n    // ------------------------------------------------------------------------\n    function transfer(address to, uint tokens) public returns (bool success) {\n        balances[msg.sender] = balances[msg.sender].sub(tokens);\n        balances[to] = balances[to].add(tokens);\n        Transfer(msg.sender, to, tokens);\n        return true;\n    }\n\n\n    // ------------------------------------------------------------------------\n    // Token owner can approve for `spender` to transferFrom(...) `tokens`\n    // from the token owner's account\n    //\n    // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20-token-standard.md\n    // recommends that there are no checks for the approval double-spend attack\n    // as this should be implemented in user interfaces \n    // ------------------------------------------------------------------------\n    function approve(address spender, uint tokens) public returns (bool success) {\n        allowed[msg.sender][spender] = tokens;\n        Approval(msg.sender, spender, tokens);\n        return true;\n    }\n\n\n    // ------------------------------------------------------------------------\n    // Transfer `tokens` from the `from` account to the `to` account\n    // \n    // The calling account must already have sufficient tokens approve(...)-d\n    // for spending from the `from` account and\n    // - From account must have sufficient balance to transfer\n    // - Spender must have sufficient allowance to transfer\n    // - 0 value transfers are allowed\n    // ------------------------------------------------------------------------\n    function transferFrom(address from, address to, uint tokens) public returns (bool success) {\n        balances[from] = balances[from].sub(tokens);\n        allowed[from][msg.sender] = allowed[from][msg.sender].sub(tokens);\n        balances[to] = balances[to].add(tokens);\n        Transfer(from, to, tokens);\n        return true;\n    }\n\n\n    // ------------------------------------------------------------------------\n    // Returns the amount of tokens approved by the owner that can be\n    // transferred to the spender's account\n    // ------------------------------------------------------------------------\n    function allowance(address tokenOwner, address spender) public constant returns (uint remaining) {\n        return allowed[tokenOwner][spender];\n    }\n\n\n    // ------------------------------------------------------------------------\n    // Token owner can approve for `spender` to transferFrom(...) `tokens`\n    // from the token owner's account. The `spender` contract function\n    // `receiveApproval(...)` is then executed\n    // ------------------------------------------------------------------------\n    function approveAndCall(address spender, uint tokens, bytes data) public returns (bool success) {\n        allowed[msg.sender][spender] = tokens;\n        Approval(msg.sender, spender, tokens);\n        ApproveAndCallFallBack(spender).receiveApproval(msg.sender, tokens, this, data);\n        return true;\n    }\n\n\n    // ------------------------------------------------------------------------\n    // Don't accept ETH\n    // ------------------------------------------------------------------------\n    function () public payable {\n        revert();\n    }\n}\n\n// ----------------------------------------------------------------------------\n// Added functionality\n// ----------------------------------------------------------------------------\ncontract FreeExchange is FixedSupplyToken {\n    using SafeMath for uint;\n\n    uint public globalVariable;\n\n    // ------------------------------------------------------------------------\n    // Constructor\n    // ------------------------------------------------------------------------\n    function FreeExchange() public {\n        globalVariable = 0;\n    }\n\n    function setGlobalVariable(uint x) public {\n        globalVariable = x;\n    }\n\n    function getGlobalVariable() public view returns (uint) {\n        return globalVariable;\n    }\n}",
   "sourcePath": "/home/david/Developer/TruffleCRA/contracts/FixedSupplyToken.sol",
   "ast": {
     "absolutePath": "/home/david/Developer/TruffleCRA/contracts/FixedSupplyToken.sol",
@@ -6758,21 +6758,21 @@
             "name": "globalVariable",
             "nodeType": "VariableDeclaration",
             "scope": 558,
-            "src": "8656:27:0",
+            "src": "8656:26:0",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
-              "typeIdentifier": "t_uint8",
-              "typeString": "uint8"
+              "typeIdentifier": "t_uint256",
+              "typeString": "uint256"
             },
             "typeName": {
               "id": 530,
-              "name": "uint8",
+              "name": "uint",
               "nodeType": "ElementaryTypeName",
-              "src": "8656:5:0",
+              "src": "8656:4:0",
               "typeDescriptions": {
-                "typeIdentifier": "t_uint8",
-                "typeString": "uint8"
+                "typeIdentifier": "t_uint256",
+                "typeString": "uint256"
               }
             },
             "value": null,
@@ -6782,7 +6782,7 @@
             "body": {
               "id": 538,
               "nodeType": "Block",
-              "src": "8900:35:0",
+              "src": "8899:35:0",
               "statements": [
                 {
                   "expression": {
@@ -6799,10 +6799,10 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 531,
-                      "src": "8910:14:0",
+                      "src": "8909:14:0",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_uint8",
-                        "typeString": "uint8"
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
                       }
                     },
                     "nodeType": "Assignment",
@@ -6817,7 +6817,7 @@
                       "kind": "number",
                       "lValueRequested": false,
                       "nodeType": "Literal",
-                      "src": "8927:1:0",
+                      "src": "8926:1:0",
                       "subdenomination": null,
                       "typeDescriptions": {
                         "typeIdentifier": "t_rational_0_by_1",
@@ -6825,15 +6825,15 @@
                       },
                       "value": "0"
                     },
-                    "src": "8910:18:0",
+                    "src": "8909:18:0",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_uint8",
-                      "typeString": "uint8"
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
                     }
                   },
                   "id": 537,
                   "nodeType": "ExpressionStatement",
-                  "src": "8910:18:0"
+                  "src": "8909:18:0"
                 }
               ]
             },
@@ -6848,17 +6848,17 @@
               "id": 532,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "8890:2:0"
+              "src": "8889:2:0"
             },
             "payable": false,
             "returnParameters": {
               "id": 533,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "8900:0:0"
+              "src": "8899:0:0"
             },
             "scope": 558,
-            "src": "8869:66:0",
+            "src": "8868:66:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
@@ -6867,7 +6867,7 @@
             "body": {
               "id": 548,
               "nodeType": "Block",
-              "src": "8984:35:0",
+              "src": "8982:35:0",
               "statements": [
                 {
                   "expression": {
@@ -6884,10 +6884,10 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 531,
-                      "src": "8994:14:0",
+                      "src": "8992:14:0",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_uint8",
-                        "typeString": "uint8"
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
                       }
                     },
                     "nodeType": "Assignment",
@@ -6899,21 +6899,21 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 541,
-                      "src": "9011:1:0",
+                      "src": "9009:1:0",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_uint8",
-                        "typeString": "uint8"
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
                       }
                     },
-                    "src": "8994:18:0",
+                    "src": "8992:18:0",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_uint8",
-                      "typeString": "uint8"
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
                     }
                   },
                   "id": 547,
                   "nodeType": "ExpressionStatement",
-                  "src": "8994:18:0"
+                  "src": "8992:18:0"
                 }
               ]
             },
@@ -6934,38 +6934,38 @@
                   "name": "x",
                   "nodeType": "VariableDeclaration",
                   "scope": 549,
-                  "src": "8968:7:0",
+                  "src": "8967:6:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_uint8",
-                    "typeString": "uint8"
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
                   },
                   "typeName": {
                     "id": 540,
-                    "name": "uint8",
+                    "name": "uint",
                     "nodeType": "ElementaryTypeName",
-                    "src": "8968:5:0",
+                    "src": "8967:4:0",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_uint8",
-                      "typeString": "uint8"
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
                     }
                   },
                   "value": null,
                   "visibility": "internal"
                 }
               ],
-              "src": "8967:9:0"
+              "src": "8966:8:0"
             },
             "payable": false,
             "returnParameters": {
               "id": 543,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "8984:0:0"
+              "src": "8982:0:0"
             },
             "scope": 558,
-            "src": "8941:78:0",
+            "src": "8940:77:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
@@ -6974,7 +6974,7 @@
             "body": {
               "id": 556,
               "nodeType": "Block",
-              "src": "9082:38:0",
+              "src": "9079:38:0",
               "statements": [
                 {
                   "expression": {
@@ -6984,16 +6984,16 @@
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
                     "referencedDeclaration": 531,
-                    "src": "9099:14:0",
+                    "src": "9096:14:0",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_uint8",
-                      "typeString": "uint8"
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
                     }
                   },
                   "functionReturnParameters": 553,
                   "id": 555,
                   "nodeType": "Return",
-                  "src": "9092:21:0"
+                  "src": "9089:21:0"
                 }
               ]
             },
@@ -7008,7 +7008,7 @@
               "id": 550,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "9051:2:0"
+              "src": "9049:2:0"
             },
             "payable": false,
             "returnParameters": {
@@ -7021,41 +7021,41 @@
                   "name": "",
                   "nodeType": "VariableDeclaration",
                   "scope": 557,
-                  "src": "9075:5:0",
+                  "src": "9073:4:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_uint8",
-                    "typeString": "uint8"
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
                   },
                   "typeName": {
                     "id": 551,
-                    "name": "uint8",
+                    "name": "uint",
                     "nodeType": "ElementaryTypeName",
-                    "src": "9075:5:0",
+                    "src": "9073:4:0",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_uint8",
-                      "typeString": "uint8"
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
                     }
                   },
                   "value": null,
                   "visibility": "internal"
                 }
               ],
-              "src": "9074:7:0"
+              "src": "9072:6:0"
             },
             "scope": 558,
-            "src": "9025:95:0",
+            "src": "9023:94:0",
             "stateMutability": "view",
             "superFunction": null,
             "visibility": "public"
           }
         ],
         "scope": 559,
-        "src": "8578:544:0"
+        "src": "8578:541:0"
       }
     ],
-    "src": "0:9122:0"
+    "src": "0:9119:0"
   },
   "legacyAST": {
     "absolutePath": "/home/david/Developer/TruffleCRA/contracts/FixedSupplyToken.sol",
@@ -13781,21 +13781,21 @@
             "name": "globalVariable",
             "nodeType": "VariableDeclaration",
             "scope": 558,
-            "src": "8656:27:0",
+            "src": "8656:26:0",
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
-              "typeIdentifier": "t_uint8",
-              "typeString": "uint8"
+              "typeIdentifier": "t_uint256",
+              "typeString": "uint256"
             },
             "typeName": {
               "id": 530,
-              "name": "uint8",
+              "name": "uint",
               "nodeType": "ElementaryTypeName",
-              "src": "8656:5:0",
+              "src": "8656:4:0",
               "typeDescriptions": {
-                "typeIdentifier": "t_uint8",
-                "typeString": "uint8"
+                "typeIdentifier": "t_uint256",
+                "typeString": "uint256"
               }
             },
             "value": null,
@@ -13805,7 +13805,7 @@
             "body": {
               "id": 538,
               "nodeType": "Block",
-              "src": "8900:35:0",
+              "src": "8899:35:0",
               "statements": [
                 {
                   "expression": {
@@ -13822,10 +13822,10 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 531,
-                      "src": "8910:14:0",
+                      "src": "8909:14:0",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_uint8",
-                        "typeString": "uint8"
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
                       }
                     },
                     "nodeType": "Assignment",
@@ -13840,7 +13840,7 @@
                       "kind": "number",
                       "lValueRequested": false,
                       "nodeType": "Literal",
-                      "src": "8927:1:0",
+                      "src": "8926:1:0",
                       "subdenomination": null,
                       "typeDescriptions": {
                         "typeIdentifier": "t_rational_0_by_1",
@@ -13848,15 +13848,15 @@
                       },
                       "value": "0"
                     },
-                    "src": "8910:18:0",
+                    "src": "8909:18:0",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_uint8",
-                      "typeString": "uint8"
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
                     }
                   },
                   "id": 537,
                   "nodeType": "ExpressionStatement",
-                  "src": "8910:18:0"
+                  "src": "8909:18:0"
                 }
               ]
             },
@@ -13871,17 +13871,17 @@
               "id": 532,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "8890:2:0"
+              "src": "8889:2:0"
             },
             "payable": false,
             "returnParameters": {
               "id": 533,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "8900:0:0"
+              "src": "8899:0:0"
             },
             "scope": 558,
-            "src": "8869:66:0",
+            "src": "8868:66:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
@@ -13890,7 +13890,7 @@
             "body": {
               "id": 548,
               "nodeType": "Block",
-              "src": "8984:35:0",
+              "src": "8982:35:0",
               "statements": [
                 {
                   "expression": {
@@ -13907,10 +13907,10 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 531,
-                      "src": "8994:14:0",
+                      "src": "8992:14:0",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_uint8",
-                        "typeString": "uint8"
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
                       }
                     },
                     "nodeType": "Assignment",
@@ -13922,21 +13922,21 @@
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 541,
-                      "src": "9011:1:0",
+                      "src": "9009:1:0",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_uint8",
-                        "typeString": "uint8"
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
                       }
                     },
-                    "src": "8994:18:0",
+                    "src": "8992:18:0",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_uint8",
-                      "typeString": "uint8"
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
                     }
                   },
                   "id": 547,
                   "nodeType": "ExpressionStatement",
-                  "src": "8994:18:0"
+                  "src": "8992:18:0"
                 }
               ]
             },
@@ -13957,38 +13957,38 @@
                   "name": "x",
                   "nodeType": "VariableDeclaration",
                   "scope": 549,
-                  "src": "8968:7:0",
+                  "src": "8967:6:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_uint8",
-                    "typeString": "uint8"
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
                   },
                   "typeName": {
                     "id": 540,
-                    "name": "uint8",
+                    "name": "uint",
                     "nodeType": "ElementaryTypeName",
-                    "src": "8968:5:0",
+                    "src": "8967:4:0",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_uint8",
-                      "typeString": "uint8"
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
                     }
                   },
                   "value": null,
                   "visibility": "internal"
                 }
               ],
-              "src": "8967:9:0"
+              "src": "8966:8:0"
             },
             "payable": false,
             "returnParameters": {
               "id": 543,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "8984:0:0"
+              "src": "8982:0:0"
             },
             "scope": 558,
-            "src": "8941:78:0",
+            "src": "8940:77:0",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "public"
@@ -13997,7 +13997,7 @@
             "body": {
               "id": 556,
               "nodeType": "Block",
-              "src": "9082:38:0",
+              "src": "9079:38:0",
               "statements": [
                 {
                   "expression": {
@@ -14007,16 +14007,16 @@
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
                     "referencedDeclaration": 531,
-                    "src": "9099:14:0",
+                    "src": "9096:14:0",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_uint8",
-                      "typeString": "uint8"
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
                     }
                   },
                   "functionReturnParameters": 553,
                   "id": 555,
                   "nodeType": "Return",
-                  "src": "9092:21:0"
+                  "src": "9089:21:0"
                 }
               ]
             },
@@ -14031,7 +14031,7 @@
               "id": 550,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "9051:2:0"
+              "src": "9049:2:0"
             },
             "payable": false,
             "returnParameters": {
@@ -14044,41 +14044,41 @@
                   "name": "",
                   "nodeType": "VariableDeclaration",
                   "scope": 557,
-                  "src": "9075:5:0",
+                  "src": "9073:4:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_uint8",
-                    "typeString": "uint8"
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
                   },
                   "typeName": {
                     "id": 551,
-                    "name": "uint8",
+                    "name": "uint",
                     "nodeType": "ElementaryTypeName",
-                    "src": "9075:5:0",
+                    "src": "9073:4:0",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_uint8",
-                      "typeString": "uint8"
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
                     }
                   },
                   "value": null,
                   "visibility": "internal"
                 }
               ],
-              "src": "9074:7:0"
+              "src": "9072:6:0"
             },
             "scope": 558,
-            "src": "9025:95:0",
+            "src": "9023:94:0",
             "stateMutability": "view",
             "superFunction": null,
             "visibility": "public"
           }
         ],
         "scope": 559,
-        "src": "8578:544:0"
+        "src": "8578:541:0"
       }
     ],
-    "src": "0:9122:0"
+    "src": "0:9119:0"
   },
   "compiler": {
     "name": "solc",
@@ -14086,5 +14086,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.0",
-  "updatedAt": "2018-03-12T17:41:57.192Z"
+  "updatedAt": "2018-03-12T19:07:44.720Z"
 }

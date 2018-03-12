@@ -223,7 +223,7 @@ contract FixedSupplyToken is ERC20Interface, Owned {
 contract FreeExchange is FixedSupplyToken {
     using SafeMath for uint;
 
-    uint8 public globalVariable;
+    uint public globalVariable;
 
     // ------------------------------------------------------------------------
     // Constructor
@@ -232,11 +232,11 @@ contract FreeExchange is FixedSupplyToken {
         globalVariable = 0;
     }
 
-    function setGlobalVariable(uint8 x) public {
+    function setGlobalVariable(uint x) public {
         globalVariable = x;
     }
 
-    function getGlobalVariable() public view returns (uint8) {
+    function getGlobalVariable() public view returns (uint) {
         return globalVariable;
     }
 }

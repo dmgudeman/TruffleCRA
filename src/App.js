@@ -24,7 +24,7 @@ class App extends Component {
       ownerAddress: '',
       ownerBalance: '',
       formMessage: '',
-      globalVariable: 2
+      globalVariable: ''
     }
 
     this.handleChange = this.handleChange.bind(this);
@@ -73,6 +73,9 @@ class App extends Component {
         }))
       freeExchange.deployed().then((instance) => {
         this.setState({freeExchangeInstance: instance});
+        this.state.freeExchangeInstance.getGlobalVariable().then(result => {
+          this.setState({globalVariable: result});
+        })
 
         this.state.freeExchangeInstance.balanceOf(accounts[0]).then((result) => {
           return new BigNumber(result).valueOf();
@@ -102,7 +105,7 @@ class App extends Component {
   }
  
   handleChangeGV(event) {
-    event.preventDefault();
+    event.preventDefault()
     event.persist();
     this.setState({globalVariable: event.target.value});
   }
@@ -110,8 +113,11 @@ class App extends Component {
   onSubmitGV(event){
     event.preventDefault();
     event.persist();
-
-    this.state.freeExchangeInstance.setGlobalVariable(event.target.value);
+    console.log("this.glovbalVariable", this.state.globalVariable)
+    this.state.freeExchangeInstance.setGlobalVariable(this.state.globalVariable);
+    // this.state.freeExchangeInstance.setGlobalVariable(event.target.value).then(result=>{
+      //  console.log("result", result);
+    // });
   }
 
   onSubmit(event){
