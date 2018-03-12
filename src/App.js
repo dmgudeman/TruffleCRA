@@ -24,10 +24,13 @@ class App extends Component {
       ownerAddress: '',
       ownerBalance: '',
       formMessage: '',
-      globalVariable: ''
+      globalVariable: 2
     }
+
     this.handleChange = this.handleChange.bind(this);
     this.handleChangeAddr = this.handleChangeAddr.bind(this);
+    this.handleChangeGV = this.handleChangeGV.bind(this);
+    this.onSubmitGV = this.onSubmitGV.bind(this);
     this.onSubmit= this.onSubmit.bind(this);
   }
 
@@ -98,11 +101,19 @@ class App extends Component {
     this.setState({fieldTransferToAddress: event.target.value})
   }
  
-  handleGVIncrease(event) {
+  handleChangeGV(event) {
     event.preventDefault();
-    this.state.freeExchangeInstance.setGlobalVariable(1);
-
+    event.persist();
+    this.setState({globalVariable: event.target.value});
   }
+
+  onSubmitGV(event){
+    event.preventDefault();
+    event.persist();
+
+    this.state.freeExchangeInstance.setGlobalVariable(event.target.value);
+  }
+
   onSubmit(event){
     event.preventDefault();
     event.persist();
@@ -170,13 +181,22 @@ class App extends Component {
             <hr/>
             <button>Transfer Tokens</button><br/>
           </form>
+          <form onSubmit={this.onSubmitGV}>
+            <input
+              value={this.state.globalVariable}
+              onChange={this.handleChangeGV}
+            />
+            <button>Increase Global Variable</button>
+          </form>
           <div>
             <hr/>
             <h4>Address to Receive Tokens: {this.state.transferToAddress}</h4>
             <h4>New Balance: {this.state.transferToBalance}</h4>
           </div>
         </main>
+        
         <h1>{this.state.formMessage}</h1>
+        <h1>GLOBAL VARIABLE {this.state.globalVariable}</h1>
       </div>
     );
   }
