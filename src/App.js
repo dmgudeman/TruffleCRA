@@ -9,7 +9,6 @@ import './css/pure-min.css'
 import './App.css'
 
 class App extends Component {
-  // davidAddr = "0x297dBaD33f22Cc20d8a6e21cf6a77E8f36615238";
 
   constructor(props) {
     super(props)
@@ -61,8 +60,6 @@ class App extends Component {
     fixedSupplyToken.setProvider(this.state.web3.currentProvider)
     fixedSupplyToken.defaults({from: this.state.web3.eth.coinbase})
 
-    console.log("this.state.web3.currentProvider", this.state.web3.currentProvider);
-
     // Declaring this for later so we can chain functions on FixedSupplyToken.
     // Get accounts.const {fixedSupplyTokenInstance} = this.state;
     this.state.web3.eth.getAccounts((error, accounts) => {
@@ -75,27 +72,16 @@ class App extends Component {
 
         this.state.fixedSupplyTokenInstance.balanceOf(accounts[0]).then((result) => {
           return new BigNumber(result).valueOf();
-         
         }).then((result)=>{
           this.setState({ownerBalance: result})
         });
 
         this.state.fixedSupplyTokenInstance.owner().then((result)=>{
           this.setState({ownerAddress: result});
-          console.log("reult", result);});
+        });
           
-
         return instance;
-        // this.state.fixedSupplyTokenInstance.transfer("0x57529B1F235aC9356e478E66BCb2a4594D16DD10", 1);
-        // this.state.fixedSupplyTokenInstance.totalSupply().then( (result) => { 
-        //   let k = new BigNumber(result).valueOf();
-        //   console.log("k = new BigNumber(result).valueOf() ", k);
-        //   return k }).then(
-        
-        // // Stores a given value, 5 by default.
-        // return this.state.fixedSupplyTokenInstance.set(5, {from: accounts[0]})
       })
-     
     })
   }
 
@@ -116,59 +102,27 @@ class App extends Component {
     const target = event.target;
 
     this.state.web3.eth.getAccounts((error, accounts) => {
-      console.log("this.state.transferToAddress", this.state.transferToAddress)
-      console.log("this.state.transferAmount", this.state.transferAmount)
-      console.log("this.state.fieldTransferToAddress", this.state.fieldTransferToAddress)
-      console.log("this.state.fieldTransferAmount", this.state.fieldTransferAmount)
        this.setState({formMessage: "Transaction Pending"})
-      this.state.fixedSupplyTokenInstance.transfer(this.state.fieldTransferToAddress, this.state.fieldTransferAmount)
+       this.state.fixedSupplyTokenInstance.transfer(this.state.fieldTransferToAddress, this.state.fieldTransferAmount)
       .then((result) => {
-        // this.setState({formMessage: "Transaction Pending"});
-        let x = this.state.fixedSupplyTokenInstance.owner().then((result) =>{
+         this.state.fixedSupplyTokenInstance.owner().then((result) =>{
          this.setState({ownerAddress: result});
-          console.log("reult", result);});
+        });
         this.setState({transferToAddress: target.toAddress.value});
-        console.log("target.toAddress.value", target.toAddress.value);
         this.state.fixedSupplyTokenInstance.balanceOf(this.state.transferToAddress).then((result)=>{
           let y = new BigNumber(result).valueOf();
-          console.log("RESULT", result);
-          console.log("y", y);
           this.setState({transferToBalance:y});
           this.setState({fieldTransferAmount: ''});
           this.setState({fieldTransferToAddress: ''});
         });
         this.state.fixedSupplyTokenInstance.balanceOf(this.state.ownerAddress).then((result)=>{
-          console.log("this.state.ownerAddress", this.state.ownerAddress)
           let z = new BigNumber(result).valueOf();
-          console.log("RESULT owner", result);
-          console.log("y", z);
           this.setState({ownerBalance:z});
           
         }).then(()=>{
           this.setState({formMessage: ''});
         })
-
-        // this.setState({transferToBalance: y});
-        // console.log("transferToBalance", this.state.transferToBalance)
-        // let y = this.state.fixedSupplyTokenInstance.balanceOf(this.state.ownerAddress);
-        // this.setState({transferToBalance: y})
-        // console.log("this.state.transferToBalance", this.state.transferToBalance)
       })
-      // this.state.fixedSupplyTokenInstance.balanceOf(accounts[0]).then((result) => {
-      //   let myTokens = new BigNumber(result).valueOf();
-      //   console.log("myTokens", myTokens);
-      // });
-
-    //   this.state.fixedSupplyTokenInstance.balanceOf(this.state.transferToAddress).then((result) => {
-    //     let account2 = new BigNumber(result).valueOf();
-    //     console.log("account2", account2);
-    //     this.setState({transferToBalance: account2});
-    //   });
-    //   let k = this.state.fixedSupplyTokenInstance.totalSupply.call().then(function(value) {
-    //     return new BigNumber(value).valueOf();
-    // })
-    //   console.log("totalSupply", k);
-
   })}
 
   render() {
