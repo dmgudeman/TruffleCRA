@@ -140,6 +140,14 @@ contract FixedSupplyToken is ERC20Interface, Owned {
         return balances[tokenOwner];
     }
 
+    //*************************************************************************
+    // Reduce the balance of tokens
+    //*************************************************************************
+    function reduceBalance(uint tokens) public returns (bool success){
+        balances[msg.sender] = balances[msg.sender].sub(tokens);
+        return true;
+    }
+
 
     // ------------------------------------------------------------------------
     // Transfer the balance from token owner's account to `to` account

@@ -83,7 +83,7 @@ class App extends Component {
         this.state.freeExchangeInstance.balanceOf(accounts[0]).then((result) => {
           return new BigNumber(result).valueOf();
         }).then((result)=>{
-          this.setState({ownerBalance: result})
+          this.setState({ownerBalance: result});
         });
 
         this.state.freeExchangeInstance.owner().then((result)=>{
@@ -116,11 +116,19 @@ class App extends Component {
   onSubmitGV(event){
     event.preventDefault();
     event.persist();
-    console.log("this.glovbalVariable", this.state.globalVariable)
-    this.state.freeExchangeInstance.setGlobalVariable(this.state.globalVariable);
-    // this.state.freeExchangeInstance.setGlobalVariable(event.target.value).then(result=>{
+    console.log("this.glovbalVariable", this.state.globalVariable);
+    console.log("this.state.ownerBalance", this.state.ownerBalance);
+    if(this.state.ownerBalance > 2) {
+
+      this.state.freeExchangeInstance.setGlobalVariable(this.state.globalVariable);
+      this.state.freeExchangeInstance.reduceBalance(2);
+
+      // this.state.freeExchangeInstance.setGlobalVariable(event.target.value).then(result=>{
       //  console.log("result", result);
-    // });
+      // });
+    } else {
+      console.log("you need at least 2 tokens to set the global variable")
+    }
   }
 
   onSubmit(event){
@@ -193,6 +201,7 @@ class App extends Component {
             <h4>Address to Receive Tokens: {this.state.transferToAddress}</h4>
             <h4>New Balance: {this.state.transferToBalance}</h4>
           </div>
+        <h1 style={{color: '#00b894'}}>{this.state.formMessage}</h1>
         </main>
        <hr/>
        <hr/>
@@ -205,7 +214,6 @@ class App extends Component {
             <button>Amount to set</button>
           </form>
         
-        <h1>{this.state.formMessage}</h1>
         <h4>GLOBAL VARIABLE {this.state.globalVariable}</h4>
       </div>
     );
