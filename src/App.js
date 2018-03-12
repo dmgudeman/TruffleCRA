@@ -74,7 +74,10 @@ class App extends Component {
       freeExchange.deployed().then((instance) => {
         this.setState({freeExchangeInstance: instance});
         this.state.freeExchangeInstance.getGlobalVariable().then(result => {
-          this.setState({globalVariable: result});
+          console.log("result.c[0]", result.c[0]);
+          console.log("this.state.globalVariable", this.state.globalVariable);
+          this.setState({globalVariable: result.c[0]});
+          console.log("this.state.globalVariable", this.state.globalVariable);
         })
 
         this.state.freeExchangeInstance.balanceOf(accounts[0]).then((result) => {
@@ -187,19 +190,21 @@ class App extends Component {
             <hr/>
             <button>Transfer Tokens</button><br/>
           </form>
-          <form onSubmit={this.onSubmitGV}>
-            <input
-              value={this.state.globalVariable}
-              onChange={this.handleChangeGV}
-            />
-            <button>Increase Global Variable</button>
-          </form>
+          
           <div>
             <hr/>
             <h4>Address to Receive Tokens: {this.state.transferToAddress}</h4>
             <h4>New Balance: {this.state.transferToBalance}</h4>
           </div>
         </main>
+
+        <form onSubmit={this.onSubmitGV}>
+            <input
+              value={this.state.globalVariable}
+              onChange={this.handleChangeGV}
+            />
+            <button>Increase Global Variable</button>
+          </form>
         
         <h1>{this.state.formMessage}</h1>
         <h1>GLOBAL VARIABLE {this.state.globalVariable}</h1>
