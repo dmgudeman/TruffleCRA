@@ -158,14 +158,14 @@ class App extends Component {
         <nav className="navbar pure-menu pure-menu-horizontal">
             <a href="#" className="pure-menu-heading pure-menu-link">Truffle Box</a>
         </nav>
-
         <main className="container">
-         
+          <h2>YOUR DATA</h2>
           <h4>Your address is: {this.state.ownerAddress}</h4>
           <h4>Tokens you own: {this.state.ownerBalance}</h4>
           <hr/>
+          <hr/>
           <form onSubmit={this.onSubmit}>
-            <h4>Transfer Token</h4>
+            <h2>TRANSFER TOKEN</h2>
             <label>Address to transfer to (as a hexadecimal)</label><br/>
             <input  
               name="toAddress" 
@@ -175,7 +175,6 @@ class App extends Component {
               style={{width: 400}}
             />
             <br/>
-            <hr/>
             <label>
               How many tokens to transfer
             </label><br />
@@ -187,27 +186,27 @@ class App extends Component {
               style={{width: 50}}
             />
             <br/>
-            <hr/>
             <button>Transfer Tokens</button><br/>
-          </form>
-          
+        </form>
           <div>
             <hr/>
             <h4>Address to Receive Tokens: {this.state.transferToAddress}</h4>
             <h4>New Balance: {this.state.transferToBalance}</h4>
           </div>
         </main>
-
+       <hr/>
+       <hr/>
         <form onSubmit={this.onSubmitGV}>
+        <h2>SET GLOBAL VARIABLE</h2>
             <input
               value={this.state.globalVariable}
               onChange={this.handleChangeGV}
             />
-            <button>Increase Global Variable</button>
+            <button>Amount to set</button>
           </form>
         
         <h1>{this.state.formMessage}</h1>
-        <h1>GLOBAL VARIABLE {this.state.globalVariable}</h1>
+        <h4>GLOBAL VARIABLE {this.state.globalVariable}</h4>
       </div>
     );
   }
