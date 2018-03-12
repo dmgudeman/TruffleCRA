@@ -24,6 +24,7 @@ class App extends Component {
       ownerAddress: '',
       ownerBalance: '',
       formMessage: '',
+      formMessageGV: '',
       globalVariable: ''
     }
 
@@ -110,7 +111,12 @@ class App extends Component {
   handleChangeGV(event) {
     event.preventDefault()
     event.persist();
-    this.setState({globalVariable: event.target.value});
+    if (this.state.ownerBalance > 2) {
+      this.setState({globalVariable: event.target.value});
+    } else {
+      console.log("you need at least 2 tokens to set the global variable");
+      this.setState({formMessageGV: "You need at least 2 tokens to set the global variable"})
+    }
   }
 
   onSubmitGV(event){
@@ -118,10 +124,22 @@ class App extends Component {
     event.persist();
     console.log("this.glovbalVariable", this.state.globalVariable);
     console.log("this.state.ownerBalance", this.state.ownerBalance);
-    if(this.state.ownerBalance > 2) {
+    if (this.state.ownerBalance > 2) {
 
-      this.state.freeExchangeInstance.setGlobalVariable(this.state.globalVariable);
+      this.state.freeExchangeInstance.setGlobalVariable(this.state.globalVariable)
+      .then(()=>{
       this.state.freeExchangeInstance.reduceBalance(2);
+
+      })
+      .then(()=> {
+        this.state.freeExchangeInstance.balanceOf(this.state.ownerAddress)
+        .then((result)=>{
+          let z = new BigNumber(result).valueOf();
+          this.setState({ownerBalance:z});
+          console.log("ownderBalance", this.statelownerBalance);
+      })
+
+      })
 
       // this.state.freeExchangeInstance.setGlobalVariable(event.target.value).then(result=>{
       //  console.log("result", result);
@@ -213,6 +231,7 @@ class App extends Component {
             />
             <button>Amount to set</button>
           </form>
+        <h1 style={{color: '#00b894'}}>{this.state.formMessageGV}</h1>
         
         <h4>GLOBAL VARIABLE {this.state.globalVariable}</h4>
       </div>
