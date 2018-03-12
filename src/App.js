@@ -23,7 +23,8 @@ class App extends Component {
       transferToBalance: '',
       ownerAddress: '',
       ownerBalance: '',
-      formMessage: ''
+      formMessage: '',
+      globalVariable: ''
     }
     this.handleChange = this.handleChange.bind(this);
     this.handleChangeAddr = this.handleChangeAddr.bind(this);

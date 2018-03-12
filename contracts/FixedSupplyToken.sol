@@ -215,7 +215,28 @@ contract FixedSupplyToken is ERC20Interface, Owned {
     function () public payable {
         revert();
     }
+}
 
+// ----------------------------------------------------------------------------
+// Added functionality
+// ----------------------------------------------------------------------------
+contract FreeExchange is FixedSupplyToken {
+    using SafeMath for uint;
 
-   
+    uint public globalVariable;
+
+    // ------------------------------------------------------------------------
+    // Constructor
+    // ------------------------------------------------------------------------
+    function FreeExchange() public {
+        globalVariable = 0;
+    }
+
+    function setGlobalVariable(uint x) public {
+        globalVariable = x;
+    }
+
+    function getGlobalVariable() public view returns (uint) {
+        return globalVariable;
+    }
 }
