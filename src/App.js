@@ -186,7 +186,7 @@ class App extends Component {
         </nav>
         <main className="container">
           <h2>YOUR DATA</h2>
-          <h4>Your address is: {this.state.ownerAddress}</h4>
+          {/* <h4>Your address is: {this.state.ownerAddress}</h4> */}
           <h4>Tokens you own: {this.state.ownerBalance}</h4>
           <hr/>
           <hr/>
