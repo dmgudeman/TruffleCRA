@@ -34,7 +34,7 @@ let getWeb3 = new Promise(function(resolve, reject) {
         web3: web3
       }
 
-      console.log('No web3 instance injected, using infura web3.');
+      console.log('No web3 instance injected, using infura web3. results = ', results);
 
       resolve(results)
     }

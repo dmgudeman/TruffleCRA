@@ -41,6 +41,10 @@ class App extends Component {
 
     getWeb3
     .then(results => {
+      console.log("CWM results.web3", results.web3);
+      console.log("CWM results.web3.version", results.web3.version);
+
+      results.web3.eth.getAccounts(function(err, res){ console.log("CWM getAccounts", res); });
       this.setState({
         web3: results.web3
       })
