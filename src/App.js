@@ -50,7 +50,7 @@ class App extends Component {
       })
 
       // Instantiate contract once web3 provided.
-      // this.instantiateContract()
+      this.instantiateContract()
     })
     .catch((err) => {
       console.log('Error finding web3.');
@@ -69,46 +69,50 @@ class App extends Component {
      */
     const contract = require('truffle-contract')
     const freeExchange = contract(FreeExchangeContract)
+        console.log("this.state.web3.currentProvider.address", this.state.web3.currentProvider.address);
+    this.setState({defaultAccount: this.state.web3.currentProvider.address});
+    console.log("his.state.defaultAccount", this.state.defaultAccount)
     freeExchange.setProvider(this.state.web3.currentProvider);
 
     this.state.web3.eth.getCoinbase(function(error, results){ console.log(results); freeExchange.defaults({from: results})});
 
-    // Declaring this for later so we can chain functions on FreeExchange.
-    // Get accounts.const {freeExchangeInstance} = this.state;
-    this.state.web3.eth.getAccounts((error, accounts) => {
-        this.setState(web3 => ({
-            ...web3,
-            defaultAccount: this.state.web3.eth.accounts[0]
-        }))
-    })
+    // // Declaring this for later so we can chain functions on FreeExchange.
+    // // Get accounts.const {freeExchangeInstance} = this.state;
+        console.log("defaultAccount", this.state.defaultAccount)
 
         freeExchange.deployed().then((instance) => {
             this.setState({freeExchangeInstance: instance});
             console.log("instance", instance);
-        //
-        //     instance.getGlobalVariable()
-        //         .then(result => {
-        //     //
-        //     //     console.log("reult", result.c[0])
-        //     //     // console.log("result.c[0]", result.c[0]);
-        //     //     // console.log("this.state.globalVariable", this.state.globalVariable);
-        //     //     let q = result ? result.c[0] : 0;
-        //     //     this.setState({globalVariable: q});
-        //     //     console.log("this.state.globalVariable", this.state.globalVariable);
-        //     //     console.log("q", q)
-        //     })
-        //
-        //     // this.state.freeExchangeInstance.balanceOf(this.state.defaultAccount).then((result) => {
-        //     //     return new BigNumber(result).valueOf();
-        //     // }).then((result) => {
-        //     //     this.setState({ownerBalance: result});
-        //     // });
-        //     //
-        //     // this.state.freeExchangeInstance.owner().then((result) => {
-        //     //     this.setState({ownerAddress: result});
-        //     // });
-        //
-        //     // return instance;
+
+            instance.getGlobalVariable()
+                .then(result => {
+                    console.log("reult", result.c[0])
+    //     //     //     // console.log("result.c[0]", result.c[0]);
+    //     //     //     // console.log("this.state.globalVariable", this.state.globalVariable);
+                    let q = result ? result.c[0] : 0;
+                    this.setState({globalVariable: q});
+    //     //     //     console.log("this.state.globalVariable", this.state.globalVariable);
+    //     //     //     console.log("q", q)
+           })
+    //     //
+     this.state.freeExchangeInstance.balanceOf(this.state.defaultAccount)
+             .then((result) => {
+
+                let r = new BigNumber(result).valueOf();
+                 console.log("rrrr", r);
+                 return r;
+            }).then((result) => {
+                this.setState({ownerBalance: result});
+                return this.state;
+               }).then((r)=>{console.log("this.state.ownerBalance", this.state.ownerBalance)});
+    //     //     //
+
+            this.state.freeExchangeInstance.owner().then((result) => {
+                this.setState({ownerAddress: result});
+                return this.state;
+            });
+
+            return this.state;
         })
 
   }
@@ -203,7 +207,7 @@ class App extends Component {
         </nav>
         <main className="container">
           <h2>YOUR DATA</h2>
-          {/* <h4>Your address is: {this.state.ownerAddress}</h4> */}
+          <h4>Your address is: {this.state.ownerAddress}</h4>
           <h4>Tokens you own: {this.state.ownerBalance}</h4>
           <hr/>
           <hr/>
