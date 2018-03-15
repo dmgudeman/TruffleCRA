@@ -40,91 +40,69 @@ class App extends Component {
     // See utils/getWeb3 for more info.
 
     getWeb3
-    .then(results => {
-      console.log("CWM results.web3", results.web3);
-      console.log("CWM results.web3.version", results.web3.version);
+      .then(results => {
+        console.log("CWM results.web3", results.web3);
+        console.log("CWM results.web3.version", results.web3.version);
 
-      // results.web3.eth.getAccounts(function(err, res){ console.log("CWM getAccounts", res); });
-      this.setState({
-        web3: results.web3
-      })
+        this.setState({web3: results.web3})
 
-      // Instantiate contract once web3 provided.
-      this.instantiateContract()
+        // Instantiate contract once web3 provided.
+        this.instantiateContract()
     })
     .catch((err) => {
       console.log('Error finding web3.');
-
-      console.log(err)
-
+      console.log(err);
     })
   }
 
-
-
-    instantiateContract() {
+  instantiateContract() {
     /*
      * SMART CONTRACT EXAMPLE
      *
      * Normally these functions would be called in the context of a
      * state management library, but for convenience I've placed them here.
      */
-    const contract = require('truffle-contract')
-    const freeExchange = contract(FreeExchangeContract)
-        console.log("this.state.web3.currentProvider.address", this.state.web3.currentProvider.address);
+    const contract = require('truffle-contract');
+    const freeExchange = contract(FreeExchangeContract);
     this.setState({defaultAccount: this.state.web3.currentProvider.address});
-    console.log("his.state.defaultAccount", this.state.defaultAccount)
+
     freeExchange.setProvider(this.state.web3.currentProvider);
 
-    this.state.web3.eth.getCoinbase(function(error, results){ console.log(results); freeExchange.defaults({from: results})});
+    this.state.web3.eth.getCoinbase(function(error, results){
+      console.log(results);
+      freeExchange.defaults({from: results})
+    });
 
-    // // Declaring this for later so we can chain functions on FreeExchange.
-    // // Get accounts.const {freeExchangeInstance} = this.state;
-        console.log("defaultAccount", this.state.defaultAccount)
+    freeExchange.deployed().then((instance) => {
+      this.setState({freeExchangeInstance: instance});
 
-        freeExchange.deployed().then((instance) => {
-            this.setState({freeExchangeInstance: instance});
-            console.log("instance", instance);
+      instance.getGlobalVariable()
+        .then(result => {
+          let q = result ? result.c[0] : 0;
+          this.setState({globalVariable: q}); })
 
-            instance.getGlobalVariable()
-                .then(result => {
-                    console.log("reult", result.c[0])
-    //     //     //     // console.log("result.c[0]", result.c[0]);
-    //     //     //     // console.log("this.state.globalVariable", this.state.globalVariable);
-                    let q = result ? result.c[0] : 0;
-                    this.setState({globalVariable: q});
-    //     //     //     console.log("this.state.globalVariable", this.state.globalVariable);
-    //     //     //     console.log("q", q)
-           })
-    //     //
-     this.state.freeExchangeInstance.balanceOf(this.state.defaultAccount)
-             .then((result) => {
+      this.state.freeExchangeInstance.balanceOf(this.state.defaultAccount)
+        .then((result) => {
+          let r = new BigNumber(result).valueOf();
+          return r; })
+        .then((result) => {
+          this.setState({ownerBalance: result});
+          return this.state;})
 
-                let r = new BigNumber(result).valueOf();
-                 console.log("rrrr", r);
-                 return r;
-            }).then((result) => {
-                this.setState({ownerBalance: result});
-                return this.state;
-               }).then((r)=>{console.log("this.state.ownerBalance", this.state.ownerBalance)});
-    //     //     //
+      this.state.freeExchangeInstance.owner()
+        .then((result) => {
+          this.setState({ownerAddress: result});
+          return this.state;});
 
-            this.state.freeExchangeInstance.owner().then((result) => {
-                this.setState({ownerAddress: result});
-                return this.state;
-            });
-
-            return this.state;
-        })
-
+      return this.state;
+    })
   }
 
   handleChange(event) {
 
     event.preventDefault()
     console.log("event", event.target.value)
-  try { this.setState({fieldTransferAmount: event.target.value}) }
-  catch (e) {console.log("error", e)}
+    this.setState({fieldTransferAmount: event.target.value})
   }
 
   handleChangeAddr(event) {
@@ -149,32 +127,22 @@ class App extends Component {
     event.persist();
     console.log("this.glovbalVariable", this.state.globalVariable);
     console.log("this.state.ownerBalance", this.state.ownerBalance);
-    try {
-        if (this.state.ownerBalance > 2) {
 
-            this.state.freeExchangeInstance.setGlobalVariable(this.state.globalVariable)
-                .then(() => {
-                    this.state.freeExchangeInstance.reduceBalance(2);
+      if (this.state.ownerBalance > 2) {
 
-                })
-                .then(() => {
-                    this.state.freeExchangeInstance.balanceOf(this.state.ownerAddress)
-                        .then((result) => {
-                            let z = new BigNumber(result).valueOf();
-                            this.setState({ownerBalance: z});
-                            console.log("ownderBalance", this.statelownerBalance);
-                        })
-
-                })
-
-            // this.state.freeExchangeInstance.setGlobalVariable(event.target.value).then(result=>{
-            //  console.log("result", result);
-            // });
-        } else {
-            console.log("you need at least 2 tokens to set the global variable")
-        }
-    }
-    catch (e) {console.log("error in onSubmitGV", e)}
+        this.state.freeExchangeInstance.setGlobalVariable(this.state.globalVariable)
+          .then(() => {
+             this.state.freeExchangeInstance.reduceBalance(2);})
+          .then(() => {
+            let r = this.state.freeExchangeInstance.balanceOf(this.state.ownerAddress);
+            return r; })
+          .then((result) => {
+              let z = new BigNumber(result).valueOf();
+              this.setState({ownerBalance: z});
+              console.log("ownderBalance", this.statelownerBalance);})
+      } else {
+        console.log("you need at least 2 tokens to set the global variable")
+      }
    }
 
   onSubmit(event){

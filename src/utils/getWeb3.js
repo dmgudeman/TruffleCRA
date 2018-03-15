@@ -1,7 +1,7 @@
 import Web3 from 'web3';
 var HDWalletProvider = require("truffle-hdwallet-provider");
 
-var mnemonic = "emerge call strategy naive remove grunt example sport burden ceiling tide loud";
+var mnemonic = "twelve word mnemonic";
 var provider = new HDWalletProvider(mnemonic, "https://ropsten.infura.io/WCDTmDbf8qzgqQS9qYdT", 3 );
 
 let getWeb3 = new Promise(function(resolve, reject) {
