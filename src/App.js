@@ -120,9 +120,11 @@ class App extends Component {
   }
 
   handleChange(event) {
+
     event.preventDefault()
     console.log("event", event.target.value)
-    this.setState({fieldTransferAmount: event.target.value})
+  try { this.setState({fieldTransferAmount: event.target.value}) }
+  catch (e) {console.log("error", e)}
   }
 
   handleChangeAddr(event) {
@@ -147,30 +149,33 @@ class App extends Component {
     event.persist();
     console.log("this.glovbalVariable", this.state.globalVariable);
     console.log("this.state.ownerBalance", this.state.ownerBalance);
-    if (this.state.ownerBalance > 2) {
+    try {
+        if (this.state.ownerBalance > 2) {
 
-      this.state.freeExchangeInstance.setGlobalVariable(this.state.globalVariable)
-      .then(()=>{
-      this.state.freeExchangeInstance.reduceBalance(2);
+            this.state.freeExchangeInstance.setGlobalVariable(this.state.globalVariable)
+                .then(() => {
+                    this.state.freeExchangeInstance.reduceBalance(2);
 
-      })
-      .then(()=> {
-        this.state.freeExchangeInstance.balanceOf(this.state.ownerAddress)
-        .then((result)=>{
-          let z = new BigNumber(result).valueOf();
-          this.setState({ownerBalance:z});
-          console.log("ownderBalance", this.statelownerBalance);
-      })
+                })
+                .then(() => {
+                    this.state.freeExchangeInstance.balanceOf(this.state.ownerAddress)
+                        .then((result) => {
+                            let z = new BigNumber(result).valueOf();
+                            this.setState({ownerBalance: z});
+                            console.log("ownderBalance", this.statelownerBalance);
+                        })
 
-      })
+                })
 
-      // this.state.freeExchangeInstance.setGlobalVariable(event.target.value).then(result=>{
-      //  console.log("result", result);
-      // });
-    } else {
-      console.log("you need at least 2 tokens to set the global variable")
+            // this.state.freeExchangeInstance.setGlobalVariable(event.target.value).then(result=>{
+            //  console.log("result", result);
+            // });
+        } else {
+            console.log("you need at least 2 tokens to set the global variable")
+        }
     }
-  }
+    catch (e) {console.log("error in onSubmitGV", e)}
+   }
 
   onSubmit(event){
     event.preventDefault();
