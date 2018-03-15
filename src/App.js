@@ -44,20 +44,23 @@ class App extends Component {
       console.log("CWM results.web3", results.web3);
       console.log("CWM results.web3.version", results.web3.version);
 
-      results.web3.eth.getAccounts(function(err, res){ console.log("CWM getAccounts", res); });
+      // results.web3.eth.getAccounts(function(err, res){ console.log("CWM getAccounts", res); });
       this.setState({
         web3: results.web3
       })
 
       // Instantiate contract once web3 provided.
-      this.instantiateContract()
+      // this.instantiateContract()
     })
-    .catch(() => {
-      console.log('Error finding web3.')
+    .catch((err) => {
+      console.log('Error finding web3.');
+      console.log(err);
     })
   }
 
-  instantiateContract() {
+
+
+    instantiateContract() {
     /*
      * SMART CONTRACT EXAMPLE
      *
@@ -66,38 +69,48 @@ class App extends Component {
      */
     const contract = require('truffle-contract')
     const freeExchange = contract(FreeExchangeContract)
-    freeExchange.setProvider(this.state.web3.currentProvider)
-    freeExchange.defaults({from: this.state.web3.eth.coinbase})
+    freeExchange.setProvider(this.state.web3.currentProvider);
+
+    this.state.web3.eth.getCoinbase(function(error, results){ console.log(results); freeExchange.defaults({from: results})});
 
     // Declaring this for later so we can chain functions on FreeExchange.
     // Get accounts.const {freeExchangeInstance} = this.state;
     this.state.web3.eth.getAccounts((error, accounts) => {
         this.setState(web3 => ({
-          ...web3,
-          defaultAccount:this.state.web3.eth.accounts[0]
+            ...web3,
+            defaultAccount: this.state.web3.eth.accounts[0]
         }))
-      freeExchange.deployed().then((instance) => {
-        this.setState({freeExchangeInstance: instance});
-        this.state.freeExchangeInstance.getGlobalVariable().then(result => {
-          console.log("result.c[0]", result.c[0]);
-          console.log("this.state.globalVariable", this.state.globalVariable);
-          this.setState({globalVariable: result.c[0]});
-          console.log("this.state.globalVariable", this.state.globalVariable);
+    })
+
+        freeExchange.deployed().then((instance) => {
+            this.setState({freeExchangeInstance: instance});
+            console.log("instance", instance);
+        //
+        //     instance.getGlobalVariable()
+        //         .then(result => {
+        //     //
+        //     //     console.log("reult", result.c[0])
+        //     //     // console.log("result.c[0]", result.c[0]);
+        //     //     // console.log("this.state.globalVariable", this.state.globalVariable);
+        //     //     let q = result ? result.c[0] : 0;
+        //     //     this.setState({globalVariable: q});
+        //     //     console.log("this.state.globalVariable", this.state.globalVariable);
+        //     //     console.log("q", q)
+        //     })
+        //
+        //     // this.state.freeExchangeInstance.balanceOf(this.state.defaultAccount).then((result) => {
+        //     //     return new BigNumber(result).valueOf();
+        //     // }).then((result) => {
+        //     //     this.setState({ownerBalance: result});
+        //     // });
+        //     //
+        //     // this.state.freeExchangeInstance.owner().then((result) => {
+        //     //     this.setState({ownerAddress: result});
+        //     // });
+        //
+        //     // return instance;
         })
 
-        this.state.freeExchangeInstance.balanceOf(accounts[0]).then((result) => {
-          return new BigNumber(result).valueOf();
-        }).then((result)=>{
-          this.setState({ownerBalance: result});
-        });
-
-        this.state.freeExchangeInstance.owner().then((result)=>{
-          this.setState({ownerAddress: result});
-        });
-          
-        return instance;
-      })
-    })
   }
 
   handleChange(event) {
