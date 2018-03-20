@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import {BigNumber} from 'bignumber.js';
 import FreeExchangeContract from '../build/contracts/FreeExchange.json';
 import getWeb3 from './utils/getWeb3';
+import { Input, Button } from 'antd';
 
 import './css/oswald.css'
 import './css/open-sans.css'
@@ -228,6 +229,7 @@ class App extends Component {
             <button>Amount to set</button>
           </form>
         <h1 style={{color: '#00b894'}}>{this.state.formMessageGV}</h1>
+        <Button type="primary">Button</Button>
         
         <h4>GLOBAL VARIABLE {this.state.globalVariable}</h4>
       </div>

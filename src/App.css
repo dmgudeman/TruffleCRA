@@ -1,5 +1,7 @@
 /* PAGE */
 
+@import '~antd/dist/antd.css';
+
 body,
 .pure-g [class*=pure-u] {
   font-family: 'Open Sans', sans-serif;
